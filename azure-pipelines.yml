@@ -20,7 +20,8 @@ variables:
 
 # Agent VM image name
 pool:
-  name: myVotingAppAgent
+  name: votingAppAgent
+  demands: Agent.Name -equals myVotingAppAgent
 
 stages:
 - stage: Build
