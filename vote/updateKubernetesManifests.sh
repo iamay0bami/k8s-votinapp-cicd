@@ -2,7 +2,7 @@
 
 set -x
 
-REPO_URL=$"https://ASeWGIr8gxBBalk6gIiualpcQQnN7ZPPdVuSTGM3tabx8sIM4C43JQQJ99BLACAAAAACh5bkAAASAZDO2kiO@dev.azure.com/a-agboola/votingApp/_git/votingApp"
+REPO_URL="https://ASeWGIr8gxBBalk6gIiualpcQQnN7ZPPdVuSTGM3tabx8sIM4C43JQQJ99BLACAAAAACh5bkAAASAZDO2kiO@dev.azure.com/a-agboola/votingApp/_git/votingApp"
 
 git clone "$REPO_URL" /tmp/temp_repo
 
