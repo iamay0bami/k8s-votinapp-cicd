@@ -48,3 +48,14 @@ stages:
           containerRegistry: 'myVotingAppContainerRegistry'
           repository: 'votingapp/vote'
           command: push
+
+- stage: Update_bash_script
+  displayName: update_Bash_script
+  jobs:
+    - job: Updating_repo_with_bash
+      displayName: updating_repo_using_bash_script
+      steps:
+      - task: ShellScript@2
+        inputs:
+          scriptPath: 'vote/updateKubernetesManifests.sh'
+          args: 'vote $(imageRepository) $(tag)'
