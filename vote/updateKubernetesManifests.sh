@@ -8,7 +8,7 @@ git clone "$REPO_URL" /tmp/temp_repo
 
 cd /tmp/temp_repo
 
-sed -i "s|image:.*|image: myVotingAppContainerRegistry/$2:$3|g" k8s-specifications/$1-deployment.yaml
+sed -i "s|image:.*|image: myVotingAppContainerRegistry/${2}:${3}|g" k8s-specifications/${1}-deployment.yaml
 
 git add .
 
