@@ -39,4 +39,5 @@ else
   git push
 fi
 
+cd ..
 rm -rf /tmp/temp_repo
