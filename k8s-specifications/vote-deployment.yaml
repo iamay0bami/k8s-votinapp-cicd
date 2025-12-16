@@ -15,8 +15,10 @@ spec:
         app: vote
     spec:
       containers:
-      - image: dockersamples/examplevotingapp_vote
+      - image: myvotingappcontainerregistry.azurecr.io/votingapp/vote:52
         name: vote
         ports:
         - containerPort: 80
           name: vote
+        imagePullSecrets:
+        - name: myvotingapp-secret
