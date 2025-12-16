@@ -20,5 +20,5 @@ spec:
         ports:
         - containerPort: 80
           name: vote
-        imagePullSecrets:
-        - name: myvotingapp-secret
+      imagePullSecrets:
+      - name: myvotingapp-secret
