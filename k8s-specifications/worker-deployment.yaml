@@ -17,3 +17,5 @@ spec:
       containers:
       - image: myvotingappcontainerregistry.azurecr.io/votingapp/worker:66
         name: worker
+      imagePullSecrets:
+      - name: myvotingapp-secret
