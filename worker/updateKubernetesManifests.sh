@@ -23,7 +23,7 @@ cd /tmp/temp_repo
 
 
 # Construct the full image name (e.g., myregistry.azurecr.io/votingapp/vote:55)
-NEW_IMAGE_FULL="${ACR_LOGIN_SERVER}/${IMAGE_REPO}/vote:${IMAGE_TAG}"
+NEW_IMAGE_FULL="${ACR_LOGIN_SERVER}/${IMAGE_REPO}/worker:${IMAGE_TAG}"
 
 echo "Updating deployment to use image: $NEW_IMAGE_FULL"
 
