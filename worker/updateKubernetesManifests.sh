@@ -41,6 +41,7 @@ if [ -z "$(git status --porcelain)" ]; then
 else
   git add .
   git commit -m "Update ${SERVICE_NAME} image to tag ${IMAGE_TAG}"
+  git push
 fi
 
 # Cleanup
