@@ -49,3 +49,23 @@ stages:
           repository: 'votingapp/result'
           command: 'push'
 
+- stage: Update_bash_script
+  displayName: update_Bash_script
+  jobs:
+    - job: Updating_repo_with_bash
+      displayName: updating_repo_using_bash_script
+      steps:
+      # FIX 1: Convert line endings from Windows (CRLF) to Linux (LF)
+      - script: |
+          sed -i 's/\r$//' result/updateKubernetesManifests.sh
+        displayName: 'Fix Windows Line Endings'
+
+      # FIX 2: Run the script with the Token and Registry URL
+      - task: ShellScript@2
+        inputs:
+          scriptPath: 'result/updateKubernetesManifests.sh'
+          # We added $(containerRegistry) as the 4th argument so the script knows the full URL
+          args: 'result $(imageRepository) $(tag) $(containerRegistry)'
+        env:
+          # This securely passes the permission to push code without hardcoding passwords
+          AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
