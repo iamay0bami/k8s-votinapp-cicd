@@ -64,7 +64,7 @@ stages:
       - task: ShellScript@2
         inputs:
           scriptPath: 'worker/updateKubernetesManifests.sh'
-          # We added $(containerRegistry) as the 4th argument so the script knows the full URL
+          # Added $(containerRegistry) as the 4th argument so the script knows the full URL
           args: 'worker $(imageRepository) $(tag) $(containerRegistry)'
         env:
           # This securely passes the permission to push code without hardcoding passwords
