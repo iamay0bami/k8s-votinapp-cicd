@@ -55,7 +55,7 @@ I utilized **Self-Hosted Agents** on Linux Azure VMs to run the pipelines, ensur
       - task: ShellScript@2
         inputs:
           scriptPath: 'vote/updateKubernetesManifests.sh'
-          # We added $(containerRegistry) as the 4th argument so the script knows the full URL
+          # Added $(containerRegistry) as the 4th argument so the script knows the full URL
           args: 'vote $(imageRepository) $(tag) $(containerRegistry)'
         env:
           # This securely passes the permission to push code without hardcoding passwords
