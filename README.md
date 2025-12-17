@@ -1,65 +1,62 @@
-# Example Voting App
+# End-to-End DevOps Project: Azure Voting App (CI/CD + GitOps)
 
-A simple distributed application running across multiple Docker containers.
+## 📖 Project Overview
+This repository hosts the **DevOps configuration and Infrastructure-as-Code (IaC)** for a 3-Tier Microservices Voting Application. 
 
-## Getting started
+While the application logic follows the standard [Docker Example Voting App](https://github.com/dockersamples/example-voting-app) architecture, this project focuses on the **implementation of a production-ready CI/CD pipeline** using Azure Cloud resources and GitOps principles.
 
-Download [Docker Desktop](https://www.docker.com/products/docker-desktop) for Mac or Windows. [Docker Compose](https://docs.docker.com/compose) will be automatically installed. On Linux, make sure you have the latest version of [Compose](https://docs.docker.com/compose/install/).
+## 🚀 Architecture & Workflow
 
-This solution uses Python, Node.js, .NET, with Redis for messaging and Postgres for storage.
+The project implements a full **Code-to-Cloud** pipeline:
 
-Run in this directory to build and run the app:
+1.  **Code Commit:** Changes pushed to Azure Repos trigger the CI pipeline.
+2.  **Continuous Integration (Azure Pipelines):**
+    * Builds Docker images for `Vote`, `Result`, and `Worker` services.
+    * Pushes tagged images to **Azure Container Registry (ACR)**.
+    * **Automated Manifest Update:** A custom Bash script updates the Kubernetes manifest files in the repo with the new image tags.
+3.  **Continuous Delivery (ArgoCD):**
+    * ArgoCD (running on AKS) detects the change in the Git repository.
+    * Automatically syncs the **Azure Kubernetes Service (AKS)** cluster to match the new configuration.
 
-```shell
-docker compose up
-```
+## 🛠️ Tech Stack & Tools Used
 
-The `vote` app will be running at [http://localhost:8080](http://localhost:8080), and the `results` will be at [http://localhost:8081](http://localhost:8081).
+* **Cloud Provider:** Microsoft Azure
+* **Containerization:** Docker & Docker Compose 
+* **Orchestration:** Azure Kubernetes Service (AKS) 
+* **CI/CD:** Azure DevOps (Pipelines & Repos)
+* **GitOps Controller:** ArgoCD 
+* **Registry:** Azure Container Registry (ACR) 
+* **Scripting:** Bash (for automated manifest versioning) 
 
-Alternately, if you want to run it on a [Docker Swarm](https://docs.docker.com/engine/swarm/), first make sure you have a swarm. If you don't, run:
+## 📂 Repository Structure
 
-```shell
-docker swarm init
-```
+* `/vote`, `/result`, `/worker`: Application source code (Python/Node.js) and contains the `updateK8sManifests.sh` script used by the pipeline to update image tags.
+* `/k8s-specifications`: Kubernetes manifest files (Deployments, Services) monitored by ArgoCD.
+* `azure-pipelines.yaml`: CI pipeline definitions for building and pushing artifacts.
 
-Once you have your swarm, in this directory run:
+## ⚙️ Key Implementation Details
 
-```shell
-docker stack deploy --compose-file docker-stack.yml vote
-```
+### 1. The CI Pipeline
+I utilized **Self-Hosted Agents** on Linux Azure VMs to run the pipelines, ensuring faster builds and better resource control. The pipeline includes a special stage to update the infrastructure repository:
 
-## Run the app in Kubernetes
+```yaml
+- stage: Update_bash_script
+  displayName: update_Bash_script
+  jobs:
+    - job: Updating_repo_with_bash
+      displayName: updating_repo_using_bash_script
+      steps:
+      # FIX 1: Convert line endings from Windows (CRLF) to Linux (LF)
+      - script: |
+          sed -i 's/\r$//' vote/updateKubernetesManifests.sh
+        displayName: 'Fix Windows Line Endings'
 
-The folder k8s-specifications contains the YAML specifications of the Voting App's services.
-
-Run the following command to create the deployments and services. Note it will create these resources in your current namespace (`default` if you haven't changed it.)
-
-```shell
-kubectl create -f k8s-specifications/
-```
-
-The `vote` web app is then available on port 31000 on each host of the cluster, the `result` web app is available on port 31001.
-
-To remove them, run:
-
-```shell
-kubectl delete -f k8s-specifications/
-```
-
-## Architecture
-
-![Architecture diagram](architecture.excalidraw.png)
-
-* A front-end web app in [Python](/vote) which lets you vote between two options
-* A [Redis](https://hub.docker.com/_/redis/) which collects new votes
-* A [.NET](/worker/) worker which consumes votes and stores them in…
-* A [Postgres](https://hub.docker.com/_/postgres/) database backed by a Docker volume
-* A [Node.js](/result) web app which shows the results of the voting in real time
-
-## Notes
-
-The voting application only accepts one vote per client browser. It does not register additional votes if a vote has already been submitted from a client.
-
-This isn't an example of a properly architected perfectly designed distributed app... it's just a simple
-example of the various types of pieces and languages you might see (queues, persistent data, etc), and how to
-deal with them in Docker at a basic level.
+      # FIX 2: Run the script with the Token and Registry URL
+      - task: ShellScript@2
+        inputs:
+          scriptPath: 'vote/updateKubernetesManifests.sh'
+          # We added $(containerRegistry) as the 4th argument so the script knows the full URL
+          args: 'vote $(imageRepository) $(tag) $(containerRegistry)'
+        env:
+          # This securely passes the permission to push code without hardcoding passwords
+          AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
